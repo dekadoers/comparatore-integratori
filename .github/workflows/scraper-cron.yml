@@ -1,0 +1,37 @@
+name: Supplement Price Scraper Cron
+
+on:
+  # Esecuzione automatica notturna ogni giorno alle 03:00 AM UTC
+  schedule:
+    - cron: '0 3 * * *'
+  # Abilita l'avvio manuale tramite pulsante "Run workflow" nella tab Actions di GitHub
+  workflow_dispatch:
+
+jobs:
+  scrape-and-update:
+    name: Run Automated Price Scraper
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configura Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Installa dipendenze e Chromium
+        run: |
+          npm ci || npm install
+          npx puppeteer browsers install chrome
+
+      - name: 🚀 Esegui Scraper e Aggiorna Storico Prezzi
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node scripts/scraper.js scripts/urls.txt
