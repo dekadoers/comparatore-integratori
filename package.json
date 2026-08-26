@@ -10,7 +10,7 @@
     "scrape": "node scripts/scraper.js"
   },
   "dependencies": {
-    "@google/genai": "^2.18.0",
+    "@google/generative-ai": "^0.21.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "clsx": "^2.1.1",
