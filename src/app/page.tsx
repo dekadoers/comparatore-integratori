@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { Product } from "@/types/database";
 import { getProductWeightGrams, calculateCostPer100g, calculateCostPer100gProtein } from "@/lib/pricing";
 import NeedsCalculator from "@/components/NeedsCalculator";
+import AuthWidget from "@/components/AuthWidget";
 import {
   Search,
   Scale,
@@ -260,9 +261,7 @@ export default function SupplementComparator() {
             >
               Calcola il tuo fabbisogno
             </a>
-            <div className="text-xs text-slate-500 hidden md:block">
-              Database Supabase Live
-            </div>
+            <AuthWidget />
           </div>
         </div>
       </header>

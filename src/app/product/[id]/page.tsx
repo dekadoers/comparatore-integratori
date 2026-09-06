@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { getProductWeightGrams, calculateCostPer100g, calculateCostPer100gProtein } from "@/lib/pricing";
+import ReviewsSection from "@/components/ReviewsSection";
 import {
   ArrowLeft,
   ExternalLink,
@@ -54,6 +55,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </div>
     );
   }
+
+  // 2. Fetch delle recensioni
+  const { data: reviews } = await supabase
+    .from("reviews")
+    .select("*")
+    .eq("product_id", id)
+    .order("created_at", { ascending: false });
 
   // Calcoli economici e nutrizionali
   const weightG = getProductWeightGrams(product);
@@ -370,6 +378,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        {/* Recensioni */}
+        <ReviewsSection productId={product.id} initialReviews={reviews || []} />
       </main>
     </div>
   );
