@@ -79,29 +79,6 @@ export interface Database {
           created_at?: string;
         };
       };
-      price_history: {
-        Row: {
-          id: string;
-          product_id: string;
-          price: number;
-          format: string | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          product_id: string;
-          price: number;
-          format?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          product_id?: string;
-          price?: number;
-          format?: string | null;
-          created_at?: string;
-        };
-      };
     };
   };
 }
@@ -110,5 +87,3 @@ export type Product = Database["public"]["Tables"]["products"]["Row"];
 export type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
 export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
-export type PriceHistory = Database["public"]["Tables"]["price_history"]["Row"];
-export type PriceHistoryInsert = Database["public"]["Tables"]["price_history"]["Insert"];

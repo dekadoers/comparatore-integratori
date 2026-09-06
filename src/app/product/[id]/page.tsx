@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { Product, PriceHistory } from "@/types/database";
-import PriceHistoryChart from "@/components/PriceHistoryChart";
+import { Product } from "@/types/database";
 import {
   ArrowLeft,
   ExternalLink,
@@ -68,13 +67,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </div>
     );
   }
-
-  // 2. Fetch della cronologia prezzi per il grafico
-  const { data: priceHistory } = await supabase
-    .from("price_history")
-    .select("*")
-    .eq("product_id", id)
-    .order("created_at", { ascending: true });
 
   // Calcoli economici e nutrizionali
   const weightG = getWeightGrams(product);
@@ -240,15 +232,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-
-        {/* GRAFICO STORICO PREZZI NEL TEMPO */}
-        <section>
-          <PriceHistoryChart
-            history={priceHistory || []}
-            currentPrice={Number(product.price)}
-            currentFormat={valuesJson.format || `${weightG}g`}
-          />
-        </section>
 
         {/* Griglia Informazioni Dettagliate & Formati Disponibili */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
