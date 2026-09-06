@@ -4,6 +4,8 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
 import { Product } from "@/types/database";
+import { getProductWeightGrams, calculateCostPer100g, calculateCostPer100gProtein } from "@/lib/pricing";
+import NeedsCalculator from "@/components/NeedsCalculator";
 import {
   Search,
   Scale,
@@ -131,37 +133,6 @@ const FALLBACK_PRODUCTS: Product[] = [
   }
 ];
 
-// Helper per estrarre il peso in grammi dal formato o JSON
-function getProductWeightGrams(product: Product): number {
-  if (product.values_json?.weight_g && Number(product.values_json.weight_g) > 0) {
-    return Number(product.values_json.weight_g);
-  }
-
-  const formatStr = String(product.values_json?.format || "");
-  const matchKg = formatStr.match(/(\d+(?:\.\d+)?)\s*kg/i);
-  if (matchKg) return parseFloat(matchKg[1]) * 1000;
-
-  const matchG = formatStr.match(/(\d+)\s*g/i);
-  if (matchG) return parseInt(matchG[1], 10);
-
-  return 1000; // default 1kg se non specificato
-}
-
-// Calcola il Costo per 100g di prodotto
-function calculateCostPer100g(product: Product): number {
-  const weightG = getProductWeightGrams(product);
-  if (!weightG || weightG <= 0) return 0;
-  return (product.price / weightG) * 100;
-}
-
-// Calcola il Costo per 100g di Proteina Pura
-function calculateCostPer100gProtein(product: Product): number | null {
-  const proteinPct = product.protein_percentage || 0;
-  if (proteinPct <= 0) return null;
-  const cost100gProduct = calculateCostPer100g(product);
-  return (cost100gProduct / proteinPct) * 100;
-}
-
 export default function SupplementComparator() {
   const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState<boolean>(true);
@@ -283,6 +254,12 @@ export default function SupplementComparator() {
                 <span>Confronta ({selectedIds.length})</span>
               </button>
             )}
+            <a
+              href="#calcolatore"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-emerald-300 hover:text-emerald-700 transition"
+            >
+              Calcola il tuo fabbisogno
+            </a>
             <div className="text-xs text-slate-500 hidden md:block">
               Database Supabase Live
             </div>
@@ -328,6 +305,8 @@ export default function SupplementComparator() {
           </div>
         </div>
       </div>
+
+      <NeedsCalculator products={products} />
 
       {/* Main Dashboard Section */}
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-8">

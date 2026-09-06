@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { Product } from "@/types/database";
+import { getProductWeightGrams, calculateCostPer100g, calculateCostPer100gProtein } from "@/lib/pricing";
 import {
   ArrowLeft,
   ExternalLink,
@@ -20,19 +20,6 @@ import {
 
 interface PageProps {
   params: Promise<{ id: string }>;
-}
-
-// Helper per calcolare il costo per 100g
-function getWeightGrams(product: Product): number {
-  if (product.values_json?.weight_g && Number(product.values_json.weight_g) > 0) {
-    return Number(product.values_json.weight_g);
-  }
-  const formatStr = String(product.values_json?.format || "");
-  const matchKg = formatStr.match(/(\d+(?:\.\d+)?)\s*kg/i);
-  if (matchKg) return parseFloat(matchKg[1]) * 1000;
-  const matchG = formatStr.match(/(\d+)\s*g/i);
-  if (matchG) return parseInt(matchG[1], 10);
-  return 1000;
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
@@ -69,10 +56,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
   }
 
   // Calcoli economici e nutrizionali
-  const weightG = getWeightGrams(product);
-  const costPer100g = weightG > 0 ? (Number(product.price) / weightG) * 100 : 0;
-  const proteinPct = product.protein_percentage || 0;
-  const costPer100gProtein = proteinPct > 0 ? (costPer100g / proteinPct) * 100 : null;
+  const weightG = getProductWeightGrams(product);
+  const costPer100g = calculateCostPer100g(product);
+  const costPer100gProtein = calculateCostPer100gProtein(product);
 
   const valuesJson = product.values_json || {};
   const availableFormats: Array<{ format: string; price: number }> =
